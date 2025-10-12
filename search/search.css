@@ -15,6 +15,15 @@ background: var(--offwhite);
   line-height: 1.6;
 }
 
+.dictionary-header a.btn-link {
+  color: var(--brown);
+  font-weight: 600;
+}
+.dictionary-header a.btn-link:hover {
+  text-decoration: underline;
+  color: #4d3627;
+}
+
 /* Header */
 .dictionary-header {
   background: linear-gradient(180deg, #fff 0%, var(--offwhite) 100%);
