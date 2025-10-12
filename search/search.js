@@ -1,4 +1,3 @@
-// ===== Utilities =====
 const debounce = (fn, delay = 250) => {
   let t;
   return (...args) => {
@@ -29,14 +28,18 @@ class ApiClient {
     try {
       const res = await fetch(
         `${this.baseUrl}/api/definitions?word=${encodeURIComponent(word)}`,
-        { method: "GET", headers: this.defaultHeaders, signal: controller.signal }
+        {
+          method: "GET",
+          headers: this.defaultHeaders,
+          signal: controller.signal,
+        }
       );
 
       const payload = await res.json();
 
       if (!res.ok || payload?.success === false) {
         const message = payload?.message || "Word not found.";
-        const status  = payload?.status || res.status || 404;
+        const status = payload?.status || res.status || 404;
         throw new ApiError(message, status, payload);
       }
 
@@ -71,12 +74,11 @@ class SearchUI {
     this.btnLabel = document.getElementById("btnLabel");
     this.clearBtn = document.getElementById("clearBtn");
 
-    this.feedback = document.getElementById("feedback");
     this.resultWord = document.getElementById("resultWord");
-    this.resultDef  = document.getElementById("resultDef");
+    this.resultDef = document.getElementById("resultDef");
     this.requestCounterEl = document.getElementById("requestCounter");
 
-    this.api = new ApiClient(""); 
+    this.api = new ApiClient("https://comp4537-lab4-vof6.onrender.com/");
     this.requestCount = 0;
 
     this.form.addEventListener("submit", (e) => {
@@ -84,11 +86,14 @@ class SearchUI {
       this.handleSearch();
     });
     this.clearBtn.addEventListener("click", () => this.clearAll());
-    this.searchInput.addEventListener("input", debounce(() => {
-      if (this.searchInput.value.trim().length > 0) {
-        this.searchInput.classList.remove("is-invalid");
-      }
-    }, 150));
+    this.searchInput.addEventListener(
+      "input",
+      debounce(() => {
+        if (this.searchInput.value.trim().length > 0) {
+          this.searchInput.classList.remove("is-invalid");
+        }
+      }, 150)
+    );
   }
 
   async handleSearch() {
@@ -99,21 +104,26 @@ class SearchUI {
       return;
     }
 
-    const reqNo = ++this.requestCount; 
-    this.requestCounterEl.textContent = String(this.requestCount);
-
     this.setLoading(true);
 
     try {
       const payload = await this.api.lookup(term);
-      // Expected JSON: { success:true, data:{ word, definition }, message? }
-      const { word, definition } = payload.data || {};
-      this.renderResult(new Definition(word || term, definition || ""));
+
+      if (payload.requestNumber !== undefined) {
+        this.requestCounterEl.textContent = String(payload.requestNumber);
+      }
+
+      const result = payload.result || payload.data || {};
+      const word = result.word ?? term;
+      const definition = result.definition ?? "—";
+
+      this.renderResult(new Definition(word, definition));
       this.showAlert(payload.message || `Found “${word}”.`, "success");
     } catch (err) {
-      const msg = (err instanceof ApiError && err.status === 404)
-        ? `Request# ${reqNo}, word '${(term)}' not found!`
-        : `Request# ${reqNo}, error: ${(err.message || "Unknown error")}`;
+      const msg =
+        err instanceof ApiError && err.status === 404
+          ? `Word '${term}' not found!`
+          : `Error: ${err.message || "Unknown error"}`;
       this.showAlert(msg, "danger");
       this.renderEmpty(term);
     } finally {
@@ -123,18 +133,17 @@ class SearchUI {
 
   renderResult(defObj) {
     this.resultWord.textContent = defObj.word || "—";
-    this.resultDef.textContent  = defObj.definition || "—";
+    this.resultDef.textContent = defObj.definition || "—";
   }
 
   renderEmpty(term) {
     this.resultWord.textContent = term || "—";
-    this.resultDef.textContent  = "—";
+    this.resultDef.textContent = "—";
   }
 
   clearAll() {
     this.searchInput.value = "";
     this.searchInput.classList.remove("is-invalid");
-    this.feedback.innerHTML = "";
     this.resultWord.textContent = "—";
     this.resultDef.textContent = "Search for a word to see its definition.";
     this.searchInput.focus();
@@ -146,8 +155,7 @@ class SearchUI {
     this.btnLabel.textContent = isLoading ? "Searching..." : "Search";
   }
 
-  showAlert(message, type ) {
-    this.feedback.innerHTML = "";
+  showAlert(message, type) {
     const wrapper = document.createElement("div");
     wrapper.className = `alert alert-${type} alert-dismissible fade show`;
     wrapper.setAttribute("role", "alert");
@@ -155,7 +163,6 @@ class SearchUI {
       <div>${message}</div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
-    this.feedback.appendChild(wrapper);
 
     clearTimeout(this._alertTimer);
     this._alertTimer = setTimeout(() => {
@@ -163,8 +170,6 @@ class SearchUI {
       inst.close();
     }, 3000);
   }
-
-  
 }
 
 window.addEventListener("DOMContentLoaded", () => new SearchUI());

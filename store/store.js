@@ -24,8 +24,19 @@ class ApiClient {
         body: JSON.stringify(definition),
       });
       const payload = await res.json();
-      return payload;
+
+      return {
+        ok: res.ok,
+        status: res.status,
+        message: payload.message || "Definition saved successfully.",
+      };
     } catch (err) {
+      return {
+        ok: false,
+        status: res.status,
+        message: err.message || "Network error",
+        data: null,
+      };
       return err;
     } finally {
       clearTimeout(id);
@@ -65,7 +76,6 @@ class StoreUI {
     this.wordInput = document.getElementById("wordInput");
     this.definitionInput = document.getElementById("definitionInput");
 
-    // Feedback & buttons
     this.feedback = document.getElementById("feedback");
     this.submitBtn = document.getElementById("submitBtn");
     this.clearBtn = document.getElementById("clearBtn");
@@ -73,16 +83,14 @@ class StoreUI {
     this.btnLabel = document.getElementById("btnLabel");
 
     this.store = new DefinitionStore();
-    this.api = new ApiClient(""); // same-origin; set to your base URL if needed
+    this.api = new ApiClient("https://comp4537-lab4-vof6.onrender.com/");
 
-    // Events
     this.form.addEventListener("submit", (e) => {
       e.preventDefault();
       this.handleSubmit();
     });
     this.clearBtn.addEventListener("click", () => this.clearForm(true));
 
-    // Debounced live validation/preview
     const onInput = this.debouncedOnInput();
     this.wordInput.addEventListener("input", onInput);
     this.definitionInput.addEventListener("input", onInput);
@@ -95,7 +103,6 @@ class StoreUI {
 
       if (word.length > 0) this.wordInput.classList.remove("is-invalid");
       if (def.length > 0) this.definitionInput.classList.remove("is-invalid");
-
     }, 300);
   }
 
@@ -125,12 +132,15 @@ class StoreUI {
     this.setSubmitting(true);
 
     try {
-      await this.api.postDefinition(defObj.toJSON());
-      this.showAlert(`Successfully added “${defObj.word}”.`, "success");
-      this.updatePreview(defObj);
-      this.clearForm(true);
+      const result = await this.api.postDefinition(defObj.toJSON());
+      if (result.ok) {
+        this.showAlert(result.message, "success");
+        this.clearForm(true);
+      } else {
+        this.showAlert(`Error ${result.status}: ${result.message}`, "danger");
+      }
     } catch (err) {
-      this.showAlert(err, "danger");
+      this.showAlert(err.message || "Unknown error", "danger");
     } finally {
       this.setSubmitting(false);
     }
@@ -144,7 +154,7 @@ class StoreUI {
 
   showAlert(message, type /* success | danger */) {
     this.feedback.innerHTML = "";
-
+    this.feedback.classList.remove("d-none");
     const wrapper = document.createElement("div");
     wrapper.className = `alert alert-${type} alert-dismissible fade show`;
     wrapper.setAttribute("role", "alert");
@@ -154,7 +164,6 @@ class StoreUI {
     `;
     this.feedback.appendChild(wrapper);
 
-    // Auto-dismiss after 3s
     clearTimeout(this._alertTimer);
     this._alertTimer = setTimeout(() => {
       const alertInstance = bootstrap.Alert.getOrCreateInstance(wrapper);
@@ -162,15 +171,12 @@ class StoreUI {
     }, 3000);
   }
 
-
-
   clearForm(focusWord = false) {
     this.wordInput.value = "";
     this.definitionInput.value = "";
     this.wordInput.classList.remove("is-invalid");
     this.definitionInput.classList.remove("is-invalid");
 
-    
     if (focusWord) this.wordInput.focus();
   }
 }
