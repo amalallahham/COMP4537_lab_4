@@ -119,7 +119,7 @@ class SearchUI {
       const definition = result.definition ?? "—";
 
       this.renderResult(new Definition(word, definition));
-      this.showAlert(payload.message || `Found “${word}”.`, "success");
+      // this.showAlert(payload.message || `Found “${word}”.`, "success");
     } catch (err) {
       const msg =
         err instanceof ApiError && err.status === 404
