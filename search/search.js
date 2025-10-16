@@ -97,42 +97,54 @@ class SearchUI {
     );
   }
 
-  async handleSearch() {
-    const term = this.searchInput.value.trim();
-    if (!term) {
-      this.searchInput.classList.add("is-invalid");
-      this.showAlert("Please enter a search term.", "danger");
-      return;
-    }
-
-    this.setLoading(true);
-
-    try {
-      const payload = await this.api.lookup(term);
-
-      if (payload.requestNumber !== undefined) {
-        this.requestCounterEl.textContent = String(payload.requestNumber);
-      }
-
-      const result = payload.result || payload.data || {};
-      const word = result.word ?? term;
-      const definition = result.definition ?? "—";
-
-      this.renderResult(new Definition(word, definition));
-      // this.showAlert(payload.message || `Found “${word}”.`, "success");
-    } catch (err) {
-      const msg =
-        err instanceof ApiError && err.status === 404
-          ? `Word '${term}' not found!`
-          : `Error: ${err.message || "Unknown error"}`;
-
-        console.log("err", msg);
-      this.showAlert(msg, "danger");
-      this.renderEmpty(term);
-    } finally {
-      this.setLoading(false);
-    }
+async handleSearch() {
+  const term = this.searchInput.value.trim();
+  if (!term) {
+    this.searchInput.classList.add("is-invalid");
+    this.showAlert("Please enter a search term.", "danger");
+    return;
   }
+
+  this.setLoading(true);
+
+  let payload = null; // ✅ Declare outside try/catch
+  try {
+    payload = await this.api.lookup(term);
+    console.log("payload", payload);
+
+    if (payload?.requestNumber !== undefined) {
+      this.requestCounterEl.textContent = String(payload.requestNumber);
+    }
+
+    const result = payload.result || payload.data || {};
+    const word = result.word ?? term;
+    const definition = result.definition ?? "—";
+
+    this.renderResult(new Definition(word, definition));
+  } catch (err) {
+    console.log("err", err);
+
+    // ✅ Try to extract payload from error (if your API wrapper sets it)
+    if (err.payload) {
+      payload = err.payload;
+    }
+
+    // ✅ Still update request number if present
+    if (payload?.requestNumber !== undefined) {
+      this.requestCounterEl.textContent = String(payload.requestNumber);
+    }
+
+    const msg =
+      err instanceof ApiError && err.status === 404
+        ? err?.message
+        : `Error: ${err.message || "Unknown error"}`;
+
+    this.showAlert(msg, "danger");
+    this.renderEmpty(term);
+  } finally {
+    this.setLoading(false);
+  }
+}
 
   renderResult(defObj) {
     this.resultWord.textContent = defObj.word || "—";
