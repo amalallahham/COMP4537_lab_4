@@ -172,4 +172,19 @@ class SearchUI {
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => new SearchUI());
+window.addEventListener("DOMContentLoaded", () => {
+
+  document.getElementById("backText").textContent = window.MESSAGES.back;
+  document.getElementById("pageTitle").textContent = window.MESSAGES.title;
+  document.getElementById("cardHeader").textContent = window.MESSAGES.cardHeader;
+  document.getElementById("wordLabel").textContent = window.MESSAGES.label;
+  document.getElementById("invalidFeedback").textContent = window.MESSAGES.invalidFeedback;
+  document.getElementById("btnLabel").textContent = window.MESSAGES.searchBtn;
+  document.getElementById("clearBtn").textContent = window.MESSAGES.clearBtn;
+  document.getElementById("requestLabel").childNodes[0].textContent = window.MESSAGES.requestLabel + " ";
+  document.getElementById("resultTitle").textContent = window.MESSAGES.resultTitle;
+  document.getElementById("resultWord").textContent = window.MESSAGES.defaultWord;
+  document.getElementById("resultDef").textContent = window.MESSAGES.defaultDefinition;
+  
+  new SearchUI()
+});

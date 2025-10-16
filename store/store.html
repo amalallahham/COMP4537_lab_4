@@ -2,8 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Dictionary — Add Definition</title>
+    <title></title> <!-- set via JS -->
 
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -23,8 +24,9 @@
     <header class="dictionary-header py-4">
       <div class="container d-flex align-items-center">
         <a
-          href="/index.html"
+          href="../index.html"
           class="btn btn-link text-decoration-none me-3 d-flex align-items-center"
+          id="backLink"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -33,76 +35,66 @@
             fill="currentColor"
             class="bi bi-arrow-left me-1"
             viewBox="0 0 16 16"
+            aria-hidden="true"
           >
             <path
               fill-rule="evenodd"
               d="M15 8a.5.5 0 0 1-.5.5H2.707l4.147 4.146a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 1 1 .708.708L2.707 7.5H14.5A.5.5 0 0 1 15 8z"
             />
           </svg>
-          Back
+          <span id="backText"></span>
         </a>
 
-        <h1 class="brand-title display-6 mb-1 m-0">
-          The Concise Web Dictionary
-        </h1>
+        <h1 class="brand-title display-6 mb-1 m-0" id="pageTitle"></h1>
       </div>
     </header>
 
     <main class="container my-4 my-md-5">
-    <div class="card dictionary-card shadow-sm mx-auto" style="max-width: 720px;">
-          <div class="card-header">
-            <p>Add a New Entry</p>
-          </div>
-          <div class="card-body">
-            <div id="feedback" class="mb-3 d-none" aria-live="polite"></div>
+      <div class="card dictionary-card shadow-sm mx-auto" style="max-width: 720px;">
+        <div class="card-header" id="cardHeader"></div>
 
-            <form id="defForm" novalidate>
-              <div class="mb-3">
-                <label for="wordInput" class="form-label">Word</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="wordInput"
-                  placeholder="Enter a word"
-                  required
-                />
-                <div class="invalid-feedback">Please enter a word.</div>
-              </div>
+        <div class="card-body">
+          <div id="feedback" class="mb-3 d-none" aria-live="polite"></div>
 
-              <div class="mb-3">
-                <label for="definitionInput" class="form-label"
-                  >Definition</label
-                >
-                <textarea
-                  class="form-control"
-                  id="definitionInput"
-                  rows="5"
-                  placeholder="Write a concise, dictionary-style definition."
-                  required
-                ></textarea>
-                <div class="invalid-feedback">Please enter a definition.</div>
-              </div>
+          <form id="defForm" novalidate>
+            <div class="mb-3">
+              <label for="wordInput" class="form-label" id="wordLabel"></label>
+              <input
+                type="text"
+                class="form-control"
+                id="wordInput"
+                placeholder=""
+                required
+              />
+              <div class="invalid-feedback" id="wordInvalid"></div>
+            </div>
 
-              <div class="d-flex gap-2">
-                <button id="submitBtn" class="btn btn-primary" type="submit">
-                  <span
-                    class="spinner-border spinner-border-sm me-2 d-none"
-                    id="btnSpinner"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  <span id="btnLabel">Submit</span>
-                </button>
-                <button
-                  id="clearBtn"
-                  class="btn btn-outline-danger"
-                  type="button"
-                >
-                  Clear
-                </button>
-              </div>
-            </form>
-          </div>
+            <div class="mb-3">
+              <label for="definitionInput" class="form-label" id="definitionLabel"></label>
+              <textarea
+                class="form-control"
+                id="definitionInput"
+                rows="5"
+                placeholder=""
+                required
+              ></textarea>
+              <div class="invalid-feedback" id="definitionInvalid"></div>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button id="submitBtn" class="btn btn-primary" type="submit">
+                <span
+                  class="spinner-border spinner-border-sm me-2 d-none"
+                  id="btnSpinner"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span id="btnLabel"></span>
+              </button>
+              <button id="clearBtn" class="btn btn-outline-danger" type="button"></button>
+            </div>
+          </form>
+        </div>
       </div>
     </main>
 
@@ -110,6 +102,9 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       crossorigin="anonymous"
     ></script>
+
+    <!-- Load messages BEFORE page scripts -->
+    <script src="../lang/en/msg.js"></script>
     <script src="store.js"></script>
   </body>
 </html>

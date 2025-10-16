@@ -181,4 +181,25 @@ class StoreUI {
   }
 }
 
-window.addEventListener("DOMContentLoaded", () => new StoreUI());
+window.addEventListener("DOMContentLoaded", () => {
+  document.title = window.MESSAGES.title;
+
+  document.getElementById("backText").textContent = window.MESSAGES.back;
+  document.getElementById("pageTitle").textContent = window.MESSAGES.title;
+
+  document.getElementById("cardHeader").textContent = window.MESSAGES.addCardHeader;
+
+  document.getElementById("wordLabel").textContent = window.MESSAGES.addWordLabel;
+  document.getElementById("wordInput").placeholder = window.MESSAGES.addWordPlaceholder;
+  document.getElementById("wordInvalid").textContent = window.MESSAGES.addWordInvalid;
+
+  document.getElementById("definitionLabel").textContent = window.MESSAGES.addDefinitionLabel;
+  document.getElementById("definitionInput").placeholder = window.MESSAGES.addDefinitionPlaceholder;
+  document.getElementById("definitionInvalid").textContent = window.MESSAGES.addDefinitionInvalid;
+
+  document.getElementById("btnLabel").textContent = window.MESSAGES.addSubmitBtn;
+  document.getElementById("clearBtn").textContent = window.MESSAGES.addClearBtn;
+
+  new StoreUI(); 
+});
+
