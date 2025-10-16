@@ -73,6 +73,7 @@ class SearchUI {
     this.btnSpinner = document.getElementById("btnSpinner");
     this.btnLabel = document.getElementById("btnLabel");
     this.clearBtn = document.getElementById("clearBtn");
+    this.feedback = document.getElementById("feedback");
 
     this.resultWord = document.getElementById("resultWord");
     this.resultDef = document.getElementById("resultDef");
@@ -124,6 +125,8 @@ class SearchUI {
         err instanceof ApiError && err.status === 404
           ? `Word '${term}' not found!`
           : `Error: ${err.message || "Unknown error"}`;
+
+        console.log("err", msg);
       this.showAlert(msg, "danger");
       this.renderEmpty(term);
     } finally {
@@ -156,6 +159,8 @@ class SearchUI {
   }
 
   showAlert(message, type) {
+    this.feedback.innerHTML = "";
+    this.feedback.classList.remove("d-none");
     const wrapper = document.createElement("div");
     wrapper.className = `alert alert-${type} alert-dismissible fade show`;
     wrapper.setAttribute("role", "alert");
@@ -163,11 +168,12 @@ class SearchUI {
       <div>${message}</div>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
+    this.feedback.appendChild(wrapper);
 
     clearTimeout(this._alertTimer);
     this._alertTimer = setTimeout(() => {
-      const inst = bootstrap.Alert.getOrCreateInstance(wrapper);
-      inst.close();
+      const alertInstance = bootstrap.Alert.getOrCreateInstance(wrapper);
+      alertInstance.close();
     }, 3000);
   }
 }
